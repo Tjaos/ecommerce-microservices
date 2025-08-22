@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Q+QohBUd/5M=",
+  "success": true,
+  "projectFilePath": "C:\\dev\\projetos_dotnet\\ecommerce-microservices\\AuthService\\AuthService.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\th832\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.8\\microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
+    "C:\\Users\\th832\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
