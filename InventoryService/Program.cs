@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuração do EF Core com SQL Server
 builder.Services.AddDbContext<InventoryDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ProductsConnection")));
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
