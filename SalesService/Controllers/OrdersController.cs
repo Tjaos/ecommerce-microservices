@@ -26,43 +26,50 @@ namespace SalesService.Controllers
         {
             // Pegar o token JWT do header da requisição do usuário
             var accessToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
             // Configurar o HttpClient para enviar o token ao InventoryService
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            // Fazer a requisição autenticada
-            var inventoryResponse = await _httpClient.GetFromJsonAsync<ProductDto>(
+
+            // Buscar produto no InventoryService
+            var product = await _httpClient.GetFromJsonAsync<ProductDto>(
                 $"http://localhost:5236/api/products/{order.ProductId}");
 
-
-            if (inventoryResponse == null)
+            if (product == null)
                 return NotFound("Produto não encontrado no estoque.");
 
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            int orderQuantity = order.Items.Sum(i => i.Quantity);
 
-            if (inventoryResponse == null)
-                return NotFound("Produto não encontrado no estoque.");
-
-            if (inventoryResponse.Stock < order.Items.Sum(i => i.Quantity))
+            if (product.Stock < orderQuantity)
                 return BadRequest("Estoque insuficiente.");
 
-            // 2 - Criar pedido
+            // Criar pedido com item vinculado ao produto
             OrderItem item = new OrderItem
             {
                 ProductId = order.ProductId,
-                Quantity = order.Items.Sum(i => i.Quantity),
-                Price = inventoryResponse.Price * order.Items.Sum(i => i.Quantity)
+                Quantity = orderQuantity,
+                Price = product.Price * orderQuantity
             };
             order.Items.Add(item);
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // 3 - Chamar InventoryService para atualizar estoque
-            inventoryResponse.Stock -= order.Items.Sum(i => i.Quantity);
-            await _httpClient.PutAsJsonAsync(
-                $"http://localhost:5236/api/products/{order.ProductId}", inventoryResponse);
+            // Chamar rota de atualização do estoque no InventoryService
+            var updateStockRequest = new
+            {
+                quantity = orderQuantity
+            };
+
+            var response = await _httpClient.PostAsJsonAsync(
+                $"http://localhost:5236/api/products/{order.ProductId}/decrease-stock",
+                updateStockRequest
+            );
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, "Erro ao atualizar estoque no InventoryService.");
+            }
 
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }

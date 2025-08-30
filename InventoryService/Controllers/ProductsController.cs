@@ -1,4 +1,5 @@
 using InventoryService.Data;
+using InventoryService.DTOs;
 using InventoryService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,35 +47,61 @@ namespace InventoryService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, Product product)
         {
-            var productBanco = await _context.Products.FindAsync(id);
+            var productDb = await _context.Products.FindAsync(id);
 
-            if (productBanco == null)
+            if (productDb == null)
             {
                 return NotFound("Produto não encontrado");
             }
 
-            productBanco.Name = product.Name;
-            productBanco.Description = product.Description;
-            productBanco.Price = product.Price;
-            productBanco.Stock = product.Stock;
+            productDb.Name = product.Name;
+            productDb.Description = product.Description;
+            productDb.Price = product.Price;
+            productDb.Stock = product.Stock;
 
-            _context.Products.Update(productBanco);
+            _context.Products.Update(productDb);
             await _context.SaveChangesAsync();
-            return Ok(productBanco);
+            return Ok(productDb);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var productBanco = await _context.Products.FindAsync(id);
-            if (productBanco == null)
+            var productDb = await _context.Products.FindAsync(id);
+            if (productDb == null)
+            {
+                return StatusCode(422, "Produto não encontrado");
+            }
+
+            _context.Products.Remove(productDb);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPost("{id}/decrease-stock")]
+        public async Task<IActionResult> DecreaseStock(int id, [FromBody] UpdateStockRequest request)
+        {
+            if (request.Quantity <= 0)
+            {
+                return StatusCode(422, "Quantidade não pode ser negativa!");
+            }
+
+            var productDb = await _context.Products.FindAsync(id);
+            if (productDb == null)
             {
                 return NotFound("Produto não encontrado");
             }
 
-            _context.Products.Remove(productBanco);
+            if (productDb.Stock < request.Quantity)
+            {
+                return BadRequest("Estoque insuficiente");
+            }
+
+            productDb.Stock -= request.Quantity;
+            _context.Products.Update(productDb);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok(productDb);
         }
+
     }
 }
