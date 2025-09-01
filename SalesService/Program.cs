@@ -7,9 +7,17 @@ using SalesService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Banco SQLServer
+//Ler variáveis de ambiente
+var sqlServerHost = Environment.GetEnvironmentVariable("SQLSERVER_HOST") ?? "localhost";
+var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "1433";
+var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
+var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
+
+//Montar connection string dinamicamente
+var connectionString = $"Server={sqlServerHost},{sqlServerPort};Database=SalesDb;User Id={sqlServerUser};Password={sqlServerPassword};";
+
 builder.Services.AddDbContext<SalesDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SalesConnection")));
+    options.UseSqlServer(connectionString));
 
 
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -65,6 +73,19 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<SalesDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao migrar o banco de dados sales: {ex.Message}");
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();

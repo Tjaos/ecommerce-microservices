@@ -8,10 +8,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Ler variáveis de ambiente
+var sqlServerHost = Environment.GetEnvironmentVariable("SQLSERVER_HOST") ?? "localhost";
+var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "1433";
+var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
+var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
 
-// Configuração do EF Core com SQL Server
+//Montar connection string dinamicamente
+var connectionString = $"Server={sqlServerHost},{sqlServerPort};Database=InventoryDb;User Id={sqlServerUser};Password={sqlServerPassword};";
+
 builder.Services.AddDbContext<InventoryDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ProductsConnection")));
+    options.UseSqlServer(connectionString));
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -64,6 +71,19 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao migrar o banco de dados inventory: {ex.Message}");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

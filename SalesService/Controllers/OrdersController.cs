@@ -33,7 +33,7 @@ namespace SalesService.Controllers
 
             // Buscar produto no InventoryService
             var product = await _httpClient.GetFromJsonAsync<ProductDto>(
-                $"http://localhost:5001/api/products/{order.ProductId}");
+                $"http://inventoryservice/api/products/{order.ProductId}");
 
             if (product == null)
                 return NotFound("Produto não encontrado no estoque.");
@@ -62,7 +62,7 @@ namespace SalesService.Controllers
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                $"http://localhost:5001/api/products/{order.ProductId}/decrease-stock",
+                $"http://inventoryservice/api/products/{order.ProductId}/decrease-stock",
                 updateStockRequest
             );
 
