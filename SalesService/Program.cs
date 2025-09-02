@@ -13,12 +13,13 @@ var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "143
 var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
 
-//Montar connection string dinamicamente
-var connectionString = $"Server={sqlServerHost},{sqlServerPort};Database=SalesDb;User Id={sqlServerUser};Password={sqlServerPassword};";
 
 builder.Services.AddDbContext<SalesDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
+AppContext.SetSwitch("System.Data.SqlClient.UseSystemDefaultSslProtocols", true);
+AppContext.SetSwitch("Microsoft.Data.SqlClient.DisableCertificateValidation", true);
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -70,7 +71,12 @@ builder.Services.AddSwaggerGen(options =>
             }, new string[] { } }
     });
 });
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("InventoryClient", client =>
+{
+    client.BaseAddress = new Uri("http://inventoryservice:8080/"); // porta interna do container InventoryService
+});
+
+
 
 var app = builder.Build();
 

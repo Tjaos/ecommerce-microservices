@@ -14,11 +14,12 @@ var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "143
 var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
 
-//Montar connection string dinamicamente
-var connectionString = $"Server={sqlServerHost},{sqlServerPort};Database=InventoryDb;User Id={sqlServerUser};Password={sqlServerPassword};";
-
 builder.Services.AddDbContext<InventoryDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlOptions => sqlOptions.EnableRetryOnFailure()));
+
+AppContext.SetSwitch("System.Data.SqlClient.UseSystemDefaultSslProtocols", true);
+AppContext.SetSwitch("Microsoft.Data.SqlClient.DisableCertificateValidation", true);
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))

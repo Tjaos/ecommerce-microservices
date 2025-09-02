@@ -18,7 +18,7 @@ namespace SalesService.Controllers
         public OrdersController(SalesDbContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("InventoryClient");
         }
 
         [HttpPost]
@@ -33,7 +33,7 @@ namespace SalesService.Controllers
 
             // Buscar produto no InventoryService
             var product = await _httpClient.GetFromJsonAsync<ProductDto>(
-                $"http://inventoryservice/api/products/{order.ProductId}");
+                $"api/products/{order.ProductId}");
 
             if (product == null)
                 return NotFound("Produto não encontrado no estoque.");
@@ -62,7 +62,7 @@ namespace SalesService.Controllers
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                $"http://inventoryservice/api/products/{order.ProductId}/decrease-stock",
+                $"api/products/{order.ProductId}/decrease-stock",
                 updateStockRequest
             );
 
