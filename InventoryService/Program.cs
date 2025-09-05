@@ -69,6 +69,7 @@ builder.Services.AddSwaggerGen(options =>
                 }
             }, new string[] { } }
     });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "InventoryService", Version = "v1", Description = "API de gerenciamento de estoque" });
 });
 
 var app = builder.Build();
@@ -89,9 +90,14 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/docs/InventoryService/swagger.json", "InventoryService v1");
+    });
 }
 
+//Middlewares
+app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

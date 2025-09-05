@@ -3,6 +3,7 @@ using AuthService.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 
 
@@ -42,12 +43,24 @@ builder.Services.AddAuthentication(options =>
 
 
 //Controllers e Swagger
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// moved app creation up to allow migration after building
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "AuthService",
+        Version = "v1",
+        Description = "API de autenticação"
+    });
+});
 
 var app = builder.Build();
+
+//Middlewares
+app.UseRouting();
+app.UseAuthorization();
 
 //Aplicar migrations automaticamente ao iniciar
 using (var scope = app.Services.CreateScope())
@@ -63,21 +76,18 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthService v1");
+    });
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
 

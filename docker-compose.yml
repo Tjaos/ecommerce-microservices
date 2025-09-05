@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2025-latest
@@ -16,12 +18,12 @@ services:
       dockerfile: Dockerfile
     container_name: authservice
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-      - SQLSERVER_HOST=sqlserver
-      - SQLSERVER_PORT=1433
-      - SQLSERVER_USER=sa
-      - SQLSERVER_PASSWORD=Str0ngP@ssword!
+      ASPNETCORE_ENVIRONMENT: Development
+      SQLSERVER_HOST: sqlserver
+      SQLSERVER_PORT: 1433
+      SQLSERVER_USER: sa
+      SQLSERVER_PASSWORD: Str0ngP@ssword!
+      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5000:8080"
     depends_on:
@@ -33,15 +35,18 @@ services:
       dockerfile: Dockerfile
     container_name: inventoryservice
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - SQLSERVER_HOST=sqlserver
-      - SQLSERVER_PORT=1433
-      - SQLSERVER_USER=sa
-      - SQLSERVER_PASSWORD=Str0ngP@ssword!
+      ASPNETCORE_ENVIRONMENT: Development
+      SQLSERVER_HOST: sqlserver
+      SQLSERVER_PORT: 1433
+      SQLSERVER_USER: sa
+      SQLSERVER_PASSWORD: Str0ngP@ssword!
+      AUTH_URL: http://authservice:8080
+      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5001:8080"
     depends_on:
       - sqlserver
+      - authservice
 
   salesservice:
     build:
@@ -49,19 +54,36 @@ services:
       dockerfile: Dockerfile
     container_name: salesservice
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - SQLSERVER_HOST=sqlserver
-      - SQLSERVER_PORT=1433
-      - SQLSERVER_USER=sa
-      - SQLSERVER_PASSWORD=Str0ngP@ssword!
-      - AUTH_URL=http://authservice:8080
-      - INVENTORY_URL=http://inventoryservice:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      SQLSERVER_HOST: sqlserver
+      SQLSERVER_PORT: 1433
+      SQLSERVER_USER: sa
+      SQLSERVER_PASSWORD: Str0ngP@ssword!
+      AUTH_URL: http://authservice:8080
+      INVENTORY_URL: http://inventoryservice:8080
+      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5002:8080"
     depends_on:
       - sqlserver
       - authservice
       - inventoryservice
+
+  apigateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    container_name: apigateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "8000:8080"
+    depends_on:
+      - authservice
+      - inventoryservice
+      - salesservice
+
 networks:
   default:
     driver: bridge

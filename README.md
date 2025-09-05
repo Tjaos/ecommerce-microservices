@@ -5,12 +5,13 @@ Este projeto é um sistema de microserviços para um e-commerce, composto por:
 - **AuthService** – Gerencia autenticação e emissão de tokens JWT.
 - **InventoryService** – Gerencia produtos e estoque.
 - **SalesService** – Gerencia pedidos, integra com InventoryService para atualizar estoque.
+- **ApiGateway (Ocelot)** – Ponto único de entrada para todos os microserviços.
 
 A aplicação usa **.NET 9**, **SQL Server (Docker)** e comunicação via **HTTP entre containers**.
 
 ---
 
-## Tecnologias
+## ⚙️ Tecnologias
 
 - .NET 9
 - ASP.NET Core Web API
@@ -19,10 +20,11 @@ A aplicação usa **.NET 9**, **SQL Server (Docker)** e comunicação via **HTTP
 - JWT Authentication
 - Swagger UI
 - Docker & Docker Compose
+- Ocelot API Gateway
 
 ---
 
-## Requisitos
+## 📋 Requisitos
 
 - Docker
 - Docker Compose

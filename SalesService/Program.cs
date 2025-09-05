@@ -70,6 +70,7 @@ builder.Services.AddSwaggerGen(options =>
                 }
             }, new string[] { } }
     });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SalesService API", Version = "v1", Description = "API de SalesService" });
 });
 builder.Services.AddHttpClient("InventoryClient", client =>
 {
@@ -79,6 +80,17 @@ builder.Services.AddHttpClient("InventoryClient", client =>
 
 
 var app = builder.Build();
+
+//Middlewares
+app.UseRouting();
+app.UseAuthorization();
+
+//Swagger middleware
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/docs/SalesService/swagger.json", "SalesService v1");
+});
 
 using (var scope = app.Services.CreateScope())
 {
@@ -93,12 +105,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

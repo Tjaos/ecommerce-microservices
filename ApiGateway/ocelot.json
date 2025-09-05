@@ -1,0 +1,87 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/{version}/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "authservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/api/{version}/auth/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "SwaggerKey": "AuthService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{version}/inventory/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "inventoryservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/api/{version}/inventory/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "SwaggerKey": "InventoryService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{version}/sales/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "salesservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/api/{version}/sales/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "SwaggerKey": "SalesService"
+    },
+
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "authservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/swagger/v1/AuthService",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "inventoryservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/swagger/v1/InventoryService",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "salesservice", "Port": 8080 }],
+      "UpstreamPathTemplate": "/swagger/v1/SalesService",
+      "UpstreamHttpMethod": ["Get"]
+    }
+  ],
+
+  "SwaggerEndPoints": [
+    {
+      "Key": "AuthService",
+      "Config": [
+        {
+          "Name": "Auth Service",
+          "Version": "v1",
+          "Url": "http://gateway:8080/swagger/v1/AuthService"
+        }
+      ]
+    },
+    {
+      "Key": "InventoryService",
+      "Config": [
+        {
+          "Name": "Inventory Service",
+          "Version": "v1",
+          "Url": "http://gateway:8080/swagger/v1/InventoryService"
+        }
+      ]
+    },
+    {
+      "Key": "SalesService",
+      "Config": [
+        {
+          "Name": "Sales Service",
+          "Version": "v1",
+          "Url": "http://gateway:8080/swagger/v1/SalesService"
+        }
+      ]
+    }
+  ],
+
+  "GlobalConfiguration": {
+    "BaseUrl": "http://gateway:8080"
+  }
+}

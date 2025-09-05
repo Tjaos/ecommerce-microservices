@@ -21,7 +21,8 @@ COPY --from=build /app/publish .
 ENV SQLSERVER_HOST=sqlserver \
     SQLSERVER_PORT=1433 \
     SQLSERVER_USER=sa \
-    SQLSERVER_PASSWORD=Str0ngP@ssword!
+    SQLSERVER_PASSWORD=Str0ngP@ssword! \
+    ASPNETCORE_URLS=http://+:8080
 
 # Entrypoint: primeiro espera o SQL, depois roda o serviço
 ENTRYPOINT ["dotnet", "AuthService.dll"]

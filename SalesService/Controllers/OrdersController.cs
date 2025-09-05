@@ -7,7 +7,7 @@ using SalesService.Models;
 namespace SalesService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/sales")]
     [Authorize]
     public class OrdersController : ControllerBase
     {

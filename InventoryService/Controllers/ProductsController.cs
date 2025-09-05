@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace InventoryService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/inventory")]
     [Authorize] // Só pode acessar com JWT válido
     public class ProductsController : ControllerBase
     {

@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace AuthService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthDbContext _context;
