@@ -17,7 +17,7 @@ namespace SalesService.Services
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);
 
-            return await _httpClient.GetFromJsonAsync<ProductDto>($"api/products/{id}");
+            return await _httpClient.GetFromJsonAsync<ProductDto>($"api/v1/inventory/{id}");
         }
 
         public async Task<bool> DecreaseStockAsync(int productId, int quantity, string token)
@@ -27,7 +27,7 @@ namespace SalesService.Services
 
             var updateStockRequest = new { quantity };
             var response = await _httpClient.PostAsJsonAsync(
-                $"api/products/{productId}/decrease-stock",
+                $"api/v1/inventory/{productId}/decrease-stock",
                 updateStockRequest
             );
 
