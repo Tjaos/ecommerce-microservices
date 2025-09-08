@@ -1,7 +1,6 @@
 using InventoryService.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -24,7 +23,7 @@ AppContext.SetSwitch("Microsoft.Data.SqlClient.DisableCertificateValidation", tr
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
 {
-    throw new InvalidOperationException("JWT Key is missing in configuration.");
+    throw new InvalidOperationException("JWT Key está faltando na configuração.");
 }
 
 // Configuração de Autenticação com JWT

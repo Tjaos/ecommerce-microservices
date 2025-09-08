@@ -1,9 +1,10 @@
-using System.Text;
+using SalesService.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SalesService.Data;
+using System.Text;
+using SalesService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +28,9 @@ if (string.IsNullOrEmpty(jwtKey))
     throw new InvalidOperationException("JWT Key está faltando na configuração.");
 }
 
-//JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+// Configuração de Autenticação com JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -39,13 +41,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = "AuthService",
         ValidAudience = "AuthService",
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Key JWT não está configurado.")
-            )
+            Encoding.UTF8.GetBytes(jwtKey)
         )
     };
 });
 
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -70,27 +71,18 @@ builder.Services.AddSwaggerGen(options =>
                 }
             }, new string[] { } }
     });
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SalesService API", Version = "v1", Description = "API de SalesService" });
-});
-builder.Services.AddHttpClient("InventoryClient", client =>
-{
-    client.BaseAddress = new Uri("http://inventoryservice:8080/"); // porta interna do container InventoryService
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SalesService API", Version = "v1", Description = "API de Gerenciamento de vendas" });
 });
 
+// Configuração do HttpClient para comunicação com o InventoryService
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<InventoryClient>(client =>
+{
+    client.BaseAddress = new Uri("http://inventoryservice:8080/");
+});
 
 
 var app = builder.Build();
-
-//Middlewares
-app.UseRouting();
-app.UseAuthorization();
-
-//Swagger middleware
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/docs/SalesService/swagger.json", "SalesService v1");
-});
 
 using (var scope = app.Services.CreateScope())
 {
@@ -105,9 +97,20 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/docs/SalesService/swagger.json", "SalesService v1");
+});
+}
 
+//Middlewares
+app.UseRouting();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
+
