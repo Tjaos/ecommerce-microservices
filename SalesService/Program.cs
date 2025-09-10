@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using SalesService.Services;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,19 @@ var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "143
 var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
 
+
+// MassTransit configuration
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("rabbitmq", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+    });
+});
 
 builder.Services.AddDbContext<SalesDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),

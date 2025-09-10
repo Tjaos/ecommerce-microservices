@@ -1,4 +1,6 @@
+using InventoryService.Consumers;
 using InventoryService.Data;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +14,28 @@ var sqlServerHost = Environment.GetEnvironmentVariable("SQLSERVER_HOST") ?? "loc
 var sqlServerPort = Environment.GetEnvironmentVariable("SQLSERVER_PORT") ?? "1433";
 var sqlServerUser = Environment.GetEnvironmentVariable("SQLSERVER_USER") ?? "sa";
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQLSERVER_PASSWORD") ?? "Str0ngP@ssword!";
+
+
+// MassTransit configuration
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OrderCreatedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("rabbitmq", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("order-created-queue", e =>
+        {
+            e.ConfigureConsumer<OrderCreatedConsumer>(context);
+        });
+    });
+});
+
 
 builder.Services.AddDbContext<InventoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),

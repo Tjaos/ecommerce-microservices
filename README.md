@@ -21,6 +21,7 @@ A aplicação usa **.NET 9**, **SQL Server (Docker)** e comunicação via **HTTP
 - Swagger UI
 - Docker & Docker Compose
 - Ocelot API Gateway
+- RabbitMQ (MassTransit)
 
 ---
 
