@@ -81,6 +81,8 @@ GO
 
 ### 3️⃣ Acessar os serviços via navegador nos links:
 
+#### APIGateway: http://localhost:8000/swagger/index.html
+
 #### AuthService: http://localhost:5000/swagger/index.html
 
 #### InventoryService: http://localhost:5001/swagger/index.html
